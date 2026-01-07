@@ -1,1 +1,1 @@
-# TrackSfM-Geometry-To-NeRF
+# NeRF-Based VR Scene Reconstruction for Defense Training
