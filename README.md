@@ -76,34 +76,34 @@ Unity Integration (VR Walkable Scene)
 
 ### Python (Reconstruction & NeRF)
 
-python extract_frames.py
-python track_sfm.py
-python bundle_adjust.py
-python export_nerf_data.py
-python intrinsics.py
-python prepare_nerf.py
-python train_render_nerf.py
-python extract_density_grid.py
-python extract_mesh.py
-python extract_wall_pointcloud.py
-python fit_plane_RANSAC.py
-python export_wall_planes.py
-python wall_extend.py
-python build_corner_wall.py
+- python extract_frames.py
+- python track_sfm.py
+- python bundle_adjust.py
+- python export_nerf_data.py
+- python intrinsics.py
+- python prepare_nerf.py
+- python train_render_nerf.py
+- python extract_density_grid.py
+- python extract_mesh.py
+- python extract_wall_pointcloud.py
+- python fit_plane_RANSAC.py
+- python export_wall_planes.py
+- python wall_extend.py
+- python build_corner_wall.py
 
 ### Unity (VR Scene)
 
-Open the Unity project
-Import corner_wall.obj into Assets/Models
-Add Box Collider to the wall mesh
-Add XR Origin (VR) to the scene
-Enable XR Device Simulator
-Press Play to walk and look around the reconstructed corner wall
+- Open the Unity project
+- Import corner_wall.obj into Assets/Models
+- Add Box Collider to the wall mesh
+- Add XR Origin (VR) to the scene
+- Enable XR Device Simulator
+- Press Play to walk and look around the reconstructed corner wall
 
 ### Tech Stack
 
-Python, NumPy, OpenCV
-PyTorch (NeRF implementation)
-Structure-from-Motion, Bundle Adjustment
-Unity (URP), XR Interaction Toolkit
-VR Device Simulation
+- Python, NumPy, OpenCV
+- PyTorch (NeRF implementation)
+- Structure-from-Motion, Bundle Adjustment
+- Unity (URP), XR Interaction Toolkit
+- VR Device Simulation
