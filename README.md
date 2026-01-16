@@ -40,8 +40,7 @@ This project explores how **NeRF density fields** can be transformed into **usab
   Set first camera pose:
       R0 = I
       t0 = 0
-  
-  for each consecutive image pair (Ii, Ii+1) do
+  for each consecutive image pair (Ii, Ii+1):
       Detect ORB features in both images
       Match descriptors using brute-force Hamming distance
   
