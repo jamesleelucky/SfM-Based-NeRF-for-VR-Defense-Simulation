@@ -19,19 +19,13 @@ This project explores how **NeRF density fields** can be transformed into **usab
 
 ## Pipeline Overview
 
-Phone Video
-↓
-Frame Extraction
-↓
-Structure-from-Motion (Camera Poses + Sparse Points)
-↓
-NeRF Training (RGB + Density)
-↓
-Density Sampling & Geometry Extraction
-↓
-Mesh Construction (Corner Wall)
-↓
-Unity Integration (VR Walkable Scene)
+1. Phone Video
+2. Frame Extraction
+3. Structure-from-Motion (Camera Poses + Sparse Points)
+4. NeRF Training (RGB + Density)
+5. Density Sampling & Geometry Extraction
+6. Mesh Construction (Corner Wall)
+7. Unity Integration (VR Walkable Scene)
 
 
 ## Technical Details
