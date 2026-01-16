@@ -76,7 +76,7 @@ Unity Integration (VR Walkable Scene)
 
 ### Python (Reconstruction & NeRF)
 
-python extract_frames.py\n
+python extract_frames.py
 python track_sfm.py
 python bundle_adjust.py
 python export_nerf_data.py
