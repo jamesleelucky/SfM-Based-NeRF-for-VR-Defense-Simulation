@@ -1,15 +1,10 @@
 # SfM-Based NeRF for VR Defense Simulation
 
----
-
-```md
 # NeRF-Based Corner Wall Reconstruction for VR Navigation
 
 This project reconstructs a real-world corner wall from monocular video using Structure-from-Motion and NeRF, extracts geometric structure from learned density, and deploys the resulting environment as a walkable VR scene in Unity.
 
 The system bridges **computer vision, neural scene representation, and immersive VR interaction** for defense- and simulation-oriented environments.
-
----
 
 ## Demo Preview
 
@@ -18,14 +13,11 @@ The system bridges **computer vision, neural scene representation, and immersive
 - Extracted mesh / reconstructed corner
 - Unity VR walkable scene
 
----
-
 ## Motivation
 
 Accurate indoor geometry reconstruction is critical for **VR-based training, simulation, and spatial reasoning** in constrained environments such as rooms, hallways, and corners.  
 This project explores how **NeRF density fields** can be transformed into **usable geometry** for real-time VR navigation.
 
----
 
 ## Pipeline Overview
 
@@ -43,8 +35,6 @@ Mesh Construction (Corner Wall)
 ↓
 Unity Integration (VR Walkable Scene)
 
-
----
 
 ## Technical Details
 
@@ -70,15 +60,11 @@ Unity Integration (VR Walkable Scene)
 - Corrected plane orientation and edge alignment
 - Exported as OBJ for real-time engines
 
----
-
 ## Results
 
 - Successfully reconstructed a **perpendicular corner wall** from phone video
 - Converted implicit NeRF representation into explicit geometry
 - Achieved stable VR navigation with collision-enabled walls
-
----
 
 ## Unity & VR Integration
 
@@ -88,12 +74,10 @@ Unity Integration (VR Walkable Scene)
 - Enabled keyboard-based VR simulation via XR Device Simulator
 - Validated camera movement and head rotation without a physical headset
 
----
-
 ## How to Run
 
 ### Python (Reconstruction & NeRF)
-```bash
+
 python extract_frames.py
 python track_sfm.py
 python bundle_adjust.py
