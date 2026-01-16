@@ -91,7 +91,7 @@ python export_wall_planes.py
 python wall_extend.py
 python build_corner_wall.py
 
-Unity (VR Scene)
+## Unity (VR Scene)
 
 Open the Unity project
 Import corner_wall.obj into Assets/Models
@@ -100,7 +100,7 @@ Add XR Origin (VR) to the scene
 Enable XR Device Simulator
 Press Play to walk and look around the reconstructed corner wall
 
-Tech Stack
+## Tech Stack
 
 Python, NumPy, OpenCV
 PyTorch (NeRF implementation)
