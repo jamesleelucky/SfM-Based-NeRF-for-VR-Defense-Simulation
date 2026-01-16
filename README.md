@@ -1,6 +1,4 @@
-# SfM-Based NeRF for VR Defense Simulation
-
-# NeRF-Based Corner Wall Reconstruction for VR Navigation
+# SfM and NeRF-Based Corner Wall Reconstruction for VR Navigation
 
 This project reconstructs a real-world corner wall from monocular video using Structure-from-Motion and NeRF, extracts geometric structure from learned density, and deploys the resulting environment as a walkable VR scene in Unity.
 
