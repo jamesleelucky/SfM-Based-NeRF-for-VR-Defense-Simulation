@@ -36,40 +36,43 @@ This project explores how **NeRF density fields** can be transformed into **usab
 - Outputs camera intrinsics and extrinsics for NeRF training
 
   #### Algorithm
-  Initialize empty lists for camera poses, 3D points, and observations
-  Set first camera pose:
-      R0 = I
-      t0 = 0
-  for each consecutive image pair (Ii, Ii+1):
-      Detect ORB features in both images
-      Match descriptors using brute-force Hamming distance
   
-      if number of matches < MIN_MATCHES:
-          skip this image pair
-  
-      Estimate Essential Matrix E using RANSAC:
-          E = findEssentialMat(pts1, pts2, K)
-  
-      Recover relative pose (R, t) from E
-  
-      Chain camera pose:
-          Ri+1 = R · Ri
-          ti+1 = R · ti + t
-  
-      Construct projection matrices:
-          P1 = K [Ri | ti]
-          P2 = K [Ri+1 | ti+1]
-  
-      Select inlier correspondences from RANSAC mask
-  
-      Triangulate 3D points:
-          X = triangulatePoints(P1, P2, x1, x2)
-  
-      For each valid triangulated point:
-          Store 3D point
-          Store 2D observation in both cameras
-          Record camera–point associations
-  end for
+    Initialize empty lists for camera poses, 3D points, and observations
+    
+    Set first camera pose:
+        R0 = I
+        t0 = 0
+    
+    for each consecutive image pair (Ii, Ii+1):
+        Detect ORB features in both images
+        Match descriptors using brute-force Hamming distance
+    
+        if number of matches < MIN_MATCHES:
+            skip this image pair
+    
+        Estimate Essential Matrix E using RANSAC:
+            E = findEssentialMat(pts1, pts2, K)
+    
+        Recover relative pose (R, t) from E
+    
+        Chain camera pose:
+            Ri+1 = R · Ri
+            ti+1 = R · ti + t
+    
+        Construct projection matrices:
+            P1 = K [Ri | ti]
+            P2 = K [Ri+1 | ti+1]
+    
+        Select inlier correspondences from RANSAC mask
+    
+        Triangulate 3D points:
+            X = triangulatePoints(P1, P2, x1, x2)
+    
+        For each valid triangulated point:
+            Store 3D point
+            Store 2D observation in both cameras
+            Record camera–point associations
+    end for
 
 ### 2. NeRF Training
 - MLP-based NeRF (RGB + density)
