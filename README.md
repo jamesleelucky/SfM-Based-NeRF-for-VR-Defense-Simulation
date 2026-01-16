@@ -2,7 +2,7 @@
 
 This project reconstructs a real-world corner wall from monocular video using Structure-from-Motion and NeRF, extracts geometric structure from learned density, and deploys the resulting environment as a walkable VR scene in Unity.
 
-The system bridges **computer vision, neural scene representation, and immersive VR interaction** for defense- and simulation-oriented environments.
+The system bridges **computer vision, neural scene representation, and immersive VR interaction** for defense and simulation-oriented environments.
 
 ## Demo Preview
 
