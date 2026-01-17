@@ -37,7 +37,7 @@ This project explores how **NeRF density fields** can be transformed into **usab
 
   #### Algorithm
   
-    Initialize empty lists for camera poses, 3D points, and observations
+  Initialize empty lists for camera poses, 3D points, and observations
     
     Set first camera pose:
         R0 = I
@@ -79,6 +79,52 @@ This project explores how **NeRF density fields** can be transformed into **usab
 - Positional encoding for high-frequency geometry
 - Trained on monocular video frames
 - Novel view synthesis for validation
+
+  #### Algorithm
+  Initialize NeRF network Fθ with random weights
+
+  for epoch = 1 to E do
+      Sample a random image Ii and its camera pose Ti
+  
+      Generate rays for all pixels:
+          For each pixel (u, v):
+              Compute ray origin o and direction d using intrinsics and pose
+  
+      Randomly sample a batch of rays
+  
+      For each ray r = (o, d):
+          Sample N points along the ray:
+              z1, z2, ..., zN ∈ [tn, tf]
+              xi = o + zi · d
+  
+          Apply positional encoding:
+              γ(xi) = [xi, sin(2^k xi), cos(2^k xi)] for k = 0..L−1
+  
+          Query NeRF:
+              (ci, σi) = Fθ(γ(xi))
+  
+      Perform volume rendering:
+          Compute distances Δi between samples
+          Compute alpha values:
+              αi = 1 − exp(−σi Δi)
+  
+          Compute transmittance:
+              Ti = ∏j<i (1 − αj)
+  
+          Compute weights:
+              wi = Ti αi
+  
+          Render pixel color:
+              Ĉ = Σi wi ci
+  
+      Compute loss:
+          L = ||Ĉ − C||²
+  
+      Backpropagate loss and update θ
+  
+  end for
+  
+  Save trained NeRF model
 
 ### 3. Density-Based Geometry Extraction
 - Dense 3D grid sampling of NeRF density field
