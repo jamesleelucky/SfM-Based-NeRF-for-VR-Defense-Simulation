@@ -83,7 +83,7 @@ This project explores how **NeRF density fields** can be transformed into **usab
   #### Algorithm
   Initialize NeRF network Fθ with random weights
 
-  for epoch = 1 to E do
+  for epoch = 1 to E:
       Sample a random image Ii and its camera pose Ti
   
       Generate rays for all pixels:
