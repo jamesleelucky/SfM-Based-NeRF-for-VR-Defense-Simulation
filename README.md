@@ -5,10 +5,13 @@ This project reconstructs a real-world corner wall from monocular video using St
 The system bridges **computer vision, neural scene representation, and immersive VR interaction** for defense and simulation-oriented environments.
 
 ## Demo Preview
-
-> *Screenshots / GIFs to be uploaded here*
-- NeRF novel view rendering
-- Extracted mesh / reconstructed corner
+- capture.mov 
+![corner_wall](https://github.com/user-attachments/assets/4c74be52-683d-4902-8a0f-a29eac470125)
+- SfM result 
+<img width="963" height="787" alt="SfM-graph" src="https://github.com/user-attachments/assets/6445e83c-bcdd-4efd-aa44-1cb7e9182c35" />
+- NeRF mesh / Reconstructed corner wall
+<img width="1512" height="857" alt="NeRF_mesh" src="https://github.com/user-attachments/assets/d2257e8e-4c90-4a5a-98e3-92f08d282e86" />
+<img width="1512" height="878" alt="corner_wall" src="https://github.com/user-attachments/assets/0bb9881a-c0fc-4bf6-a12c-763c46443db4" />
 - Unity VR walkable scene
 
 ## Motivation
