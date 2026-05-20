@@ -47,6 +47,7 @@ Rather than only generating rendered images, the project focuses on transforming
 ## Technical Details
 
 ### 1. Structure-from-Motion Algorithm
+```text
   Input:
       Monocular video frames I1, I2, ..., In
       Camera intrinsic matrix K
@@ -117,8 +118,10 @@ Rather than only generating rendered images, the project focuses on transforming
   Return:
       optimized camera poses
       optimized sparse 3D point cloud
+```
 
 ### 2. NeRF Training Algorithm
+```text
   Input:
       Training images
       Camera poses
@@ -173,6 +176,7 @@ Rather than only generating rendered images, the project focuses on transforming
       Update network parameters using gradient descent
   
   Return trained NeRF model
+```
 
 ### 3. Density-Based Geometry Extraction
 After NeRF training, the system samples the learned density field across 3D space to identify where physical surfaces likely exist. High-density regions corresponding to walls and occupied geometry are isolated and converted into a point cloud. Plane detection is then used to identify the two perpendicular wall surfaces that form the corner structure.
