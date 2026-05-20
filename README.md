@@ -1,163 +1,191 @@
 # SfM and NeRF-Based 3D Reconstruction of Real World Environment for VR Navigation
 
-This project reconstructs a real-world corner wall from monocular video using Structure-from-Motion and NeRF, extracts geometric structure from learned density, and deploys the resulting environment as a walkable VR scene in Unity.
+## Project Overview
+This project demonstrates how a real indoor environment can be reconstructed from a simple phone video and transformed into a walkable VR scene.
 
-The system bridges **computer vision, neural scene representation, and immersive VR interaction** for defense and simulation-oriented environments.
+The system combines **computer vision, neural scene representation, geometry extraction, and VR integration** to create an end-to-end pipeline that converts monocular video into an walkable virtual environment.
+
+The pipeline first estimates camera movement and sparse 3D structure using Structure-from-Motion (SfM). The estimated camera poses are then used to train a NeRF model, which learns a continuous neural representation of the scene. Geometry is extracted from the learned density field and converted into a mesh that can be imported into Unity for VR navigation.
+
+The goal of the project is to show how real-world environments captured with a phone camera can be reconstructed and deployed into immersive XR systems for simulation, spatial understanding, and defense-oriented indoor navigation scenarios.
 
 ## Demo Preview
 - capture.mov 
 ![corner_wall](https://github.com/user-attachments/assets/4c74be52-683d-4902-8a0f-a29eac470125)
 - SfM result 
 <img width="963" height="787" alt="SfM-graph" src="https://github.com/user-attachments/assets/6445e83c-bcdd-4efd-aa44-1cb7e9182c35" />
+The SfM visualization shows the estimated movement of the phone camera and rough 3D structure reconstructed from the video. The red path represents the camera trajectory, while the blue points represent reconstructed scene features. Bundle Adjustment refines both the camera motion and 3D points to improve reconstruction accuracy before NeRF training.
+
 - NeRF mesh / Reconstructed corner wall
 <img width="1512" height="857" alt="NeRF_mesh" src="https://github.com/user-attachments/assets/d2257e8e-4c90-4a5a-98e3-92f08d282e86" />
 <img width="1512" height="878" alt="corner_wall" src="https://github.com/user-attachments/assets/0bb9881a-c0fc-4bf6-a12c-763c46443db4" />
+NeRF learns a neural 3D representation of the environment from video frames by predicting color and density for any 3D location. High-density regions correspond to physical surfaces such as walls and corners. After training, the learned density field is sampled and converted into a polygon mesh, producing the reconstructed corner-wall structure. Unlike the sparse SfM point cloud, the NeRF mesh represents continuous surfaces and usable geometry. This conversion is necessary because Unity requires explicit mesh geometry and colliders for rendering, navigation, and VR interaction, while raw NeRF density fields cannot be directly used inside game engines.
 - Unity VR walkable scene
 
-## Motivation
+## What This Project Is Trying to Show
+This project is trying to demonstrate three major ideas:
 
-Accurate indoor geometry reconstruction is critical for **VR-based training, simulation, and spatial reasoning** in constrained environments such as rooms, hallways, and corners.  
-This project explores how **NeRF density fields** can be transformed into **usable geometry** for real-time VR navigation.
+1. A monocular phone video can be used to estimate real-world 3D structure.
+2. Neural scene representations such as NeRF can learn continuous volumetric geometry from images.
+3. Neural reconstructions can be converted into explicit mesh geometry that supports real-time VR interaction inside Unity.
 
+Rather than only generating rendered images, the project focuses on transforming learned neural representations into usable geometric environments for navigation and simulation.
 
 ## Pipeline Overview
-
 1. Phone Video
 2. Frame Extraction
 3. Structure-from-Motion (Camera Poses + Sparse Points)
-4. NeRF Training (RGB + Density)
-5. Density Sampling & Geometry Extraction
-6. Mesh Construction (Corner Wall)
-7. Unity Integration (VR Walkable Scene)
+4. Bundke Adjustment
+5. NeRF Training (RGB + Density)
+6. Density Sampling & Geometry Extraction
+7. Mesh Construction (Corner Wall)
+8. Unity Integration (VR Walkable Scene)
 
 
 ## Technical Details
 
-### 1. Structure-from-Motion
-- Feature matching and camera pose estimation
-- Bundle Adjustment over ~170 camera views
-- Outputs camera intrinsics and extrinsics for NeRF training
+### 1. Structure-from-Motion Algorithm
+Input:
+    Monocular video frames I1, I2, ..., In
+    Camera intrinsic matrix K
 
-  #### Algorithm
-  
-  Initialize empty lists for camera poses, 3D points, and observations
-    
-    Set first camera pose:
-        R0 = I
-        t0 = 0
-    
-    for each consecutive image pair (Ii, Ii+1):
-        Detect ORB features in both images
-        Match descriptors using brute-force Hamming distance
-    
-        if number of matches < MIN_MATCHES:
-            skip this image pair
-    
-        Estimate Essential Matrix E using RANSAC:
-            E = findEssentialMat(pts1, pts2, K)
-    
-        Recover relative pose (R, t) from E
-    
-        Chain camera pose:
-            Ri+1 = R · Ri
-            ti+1 = R · ti + t
-    
-        Construct projection matrices:
-            P1 = K [Ri | ti]
-            P2 = K [Ri+1 | ti+1]
-    
-        Select inlier correspondences from RANSAC mask
-    
-        Triangulate 3D points:
-            X = triangulatePoints(P1, P2, x1, x2)
-    
-        For each valid triangulated point:
-            Store 3D point
-            Store 2D observation in both cameras
-            Record camera–point associations
-    end for
+Output:
+    Camera poses
+    Sparse 3D point cloud
 
-### 2. NeRF Training
-- MLP-based NeRF (RGB + density)
-- Positional encoding for high-frequency geometry
-- Trained on monocular video frames
-- Novel view synthesis for validation
+Initialize:
+    camera_poses = []
+    point_cloud = []
 
-  #### Algorithm
-  Initialize NeRF network Fθ with random weights
+Set initial camera pose:
+    R0 = Identity matrix
+    t0 = Zero vector
 
-  for epoch = 1 to E:
-      Sample a random image Ii and its camera pose Ti
-  
-      Generate rays for all pixels:
-          For each pixel (u, v):
-              Compute ray origin o and direction d using intrinsics and pose
-  
-      Randomly sample a batch of rays
-  
-      For each ray r = (o, d):
-          Sample N points along the ray:
-              z1, z2, ..., zN ∈ [tn, tf]
-              xi = o + zi · d
-  
-          Apply positional encoding:
-              γ(xi) = [xi, sin(2^k xi), cos(2^k xi)] for k = 0..L−1
-  
-          Query NeRF:
-              (ci, σi) = Fθ(γ(xi))
-  
-      Perform volume rendering:
-          Compute distances Δi between samples
-          Compute alpha values:
-              αi = 1 − exp(−σi Δi)
-  
-          Compute transmittance:
-              Ti = ∏j<i (1 − αj)
-  
-          Compute weights:
-              wi = Ti αi
-  
-          Render pixel color:
-              Ĉ = Σi wi ci
-  
-      Compute loss:
-          L = ||Ĉ − C||²
-  
-      Backpropagate loss and update θ
-  
-  end for
-  
-  Save trained NeRF model
+Store initial pose:
+    camera_poses.append((R0, t0))
+
+For each consecutive image pair (Ii, Ii+1):
+
+    Detect ORB features:
+        keypoints1, descriptors1 = ORB(Ii)
+        keypoints2, descriptors2 = ORB(Ii+1)
+
+    Match descriptors using Hamming distance:
+        matches = BFMatcher(descriptors1, descriptors2)
+
+    Remove incorrect matches using RANSAC
+
+    If number of valid matches is too small:
+        continue
+
+    Extract matched feature coordinates:
+        pts1, pts2
+
+    Estimate Essential Matrix:
+        E = findEssentialMat(pts1, pts2, K)
+
+    Recover relative camera pose:
+        (R, t) = recoverPose(E, pts1, pts2)
+
+    Compute global camera pose:
+        Ri+1 = R * Ri
+        ti+1 = R * ti + t
+
+    Store camera pose:
+        camera_poses.append((Ri+1, ti+1))
+
+    Construct projection matrices:
+        P1 = K [Ri | ti]
+        P2 = K [Ri+1 | ti+1]
+
+    Triangulate matched feature points:
+        X = triangulatePoints(P1, P2, pts1, pts2)
+
+    Add triangulated points to sparse point cloud:
+        point_cloud.append(X)
+
+Perform Bundle Adjustment:
+    Optimize:
+        camera intrinsics
+        camera extrinsics
+        3D point locations
+
+    Minimize reprojection error across all observations
+
+Return:
+    optimized camera poses
+    optimized sparse 3D point cloud
+
+### 2. NeRF Training Algorithm
+Input:
+    Training images
+    Camera poses
+    Camera intrinsics
+
+Output:
+    Trained NeRF model
+
+Initialize NeRF network Fθ with random weights
+
+For epoch = 1 to E:
+
+    Randomly sample training image Ii
+    Retrieve corresponding camera pose Ti
+
+    For each sampled pixel (u, v):
+
+        Generate camera ray:
+            ray origin o
+            ray direction d
+
+        Sample N points along the ray:
+            x1, x2, ..., xN
+
+        For each sampled point xi:
+
+            Apply positional encoding:
+                γ(xi)
+
+            Query NeRF network:
+                (color ci, density σi) = Fθ(γ(xi))
+
+        Perform volume rendering:
+
+            Compute opacity values:
+                αi = 1 - exp(-σi Δi)
+
+            Compute transmittance:
+                Ti = Πj<i (1 - αj)
+
+            Compute rendering weights:
+                wi = Ti * αi
+
+            Render pixel color:
+                Ĉ = Σi wi ci
+
+        Compare rendered color with ground truth:
+            Loss = ||Ĉ - C||²
+
+    Backpropagate loss
+
+    Update network parameters using gradient descent
+
+Return trained NeRF model
 
 ### 3. Density-Based Geometry Extraction
-- Dense 3D grid sampling of NeRF density field
-- Thresholding to isolate occupied regions
-- Plane detection from density-derived point cloud
-- Reconstruction of perpendicular wall planes
+After NeRF training, the system samples the learned density field across 3D space to identify where physical surfaces likely exist. High-density regions corresponding to walls and occupied geometry are isolated and converted into a point cloud. Plane detection is then used to identify the two perpendicular wall surfaces that form the corner structure.
 
 ### 4. Mesh Construction
-- Procedural generation of a corner wall mesh
-- Corrected plane orientation and edge alignment
-- Exported as OBJ for real-time engines
+The detected wall planes are converted into an explicit 3D mesh representing the reconstructed corner wall. The system adjusts plane orientation and edge alignment to create cleaner geometry, and the final mesh is exported as an OBJ file for use in real-time engines such as Unity. 
 
 ## Results
-
 - Successfully reconstructed a **perpendicular corner wall** from phone video
 - Converted implicit NeRF representation into explicit geometry
 - Achieved stable VR navigation with collision-enabled walls
 
-## Unity & VR Integration
-
-- Imported reconstructed wall mesh into Unity
-- Added physics colliders for walkable interaction
-- Configured XR Origin and locomotion system
-- Enabled keyboard-based VR simulation via XR Device Simulator
-- Validated camera movement and head rotation without a physical headset
-
 ## How to Run
 
 ### Python (Reconstruction & NeRF)
-
 - python extract_frames.py
 - python track_sfm.py
 - python bundle_adjust.py
@@ -174,7 +202,6 @@ This project explores how **NeRF density fields** can be transformed into **usab
 - python build_corner_wall.py
 
 ### Unity (VR Scene)
-
 - Open the Unity project
 - Import corner_wall.obj into Assets/Models
 - Add Box Collider to the wall mesh
@@ -183,7 +210,6 @@ This project explores how **NeRF density fields** can be transformed into **usab
 - Press Play to walk and look around the reconstructed corner wall
 
 ### Tech Stack
-
 - Python, NumPy, OpenCV
 - PyTorch (NeRF implementation)
 - Structure-from-Motion, Bundle Adjustment
