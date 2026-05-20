@@ -47,132 +47,132 @@ Rather than only generating rendered images, the project focuses on transforming
 ## Technical Details
 
 ### 1. Structure-from-Motion Algorithm
-Input:
-    Monocular video frames I1, I2, ..., In
-    Camera intrinsic matrix K
-
-Output:
-    Camera poses
-    Sparse 3D point cloud
-
-Initialize:
-    camera_poses = []
-    point_cloud = []
-
-Set initial camera pose:
-    R0 = Identity matrix
-    t0 = Zero vector
-
-Store initial pose:
-    camera_poses.append((R0, t0))
-
-For each consecutive image pair (Ii, Ii+1):
-
-    Detect ORB features:
-        keypoints1, descriptors1 = ORB(Ii)
-        keypoints2, descriptors2 = ORB(Ii+1)
-
-    Match descriptors using Hamming distance:
-        matches = BFMatcher(descriptors1, descriptors2)
-
-    Remove incorrect matches using RANSAC
-
-    If number of valid matches is too small:
-        continue
-
-    Extract matched feature coordinates:
-        pts1, pts2
-
-    Estimate Essential Matrix:
-        E = findEssentialMat(pts1, pts2, K)
-
-    Recover relative camera pose:
-        (R, t) = recoverPose(E, pts1, pts2)
-
-    Compute global camera pose:
-        Ri+1 = R * Ri
-        ti+1 = R * ti + t
-
-    Store camera pose:
-        camera_poses.append((Ri+1, ti+1))
-
-    Construct projection matrices:
-        P1 = K [Ri | ti]
-        P2 = K [Ri+1 | ti+1]
-
-    Triangulate matched feature points:
-        X = triangulatePoints(P1, P2, pts1, pts2)
-
-    Add triangulated points to sparse point cloud:
-        point_cloud.append(X)
-
-Perform Bundle Adjustment:
-    Optimize:
-        camera intrinsics
-        camera extrinsics
-        3D point locations
-
-    Minimize reprojection error across all observations
-
-Return:
-    optimized camera poses
-    optimized sparse 3D point cloud
+  Input:
+      Monocular video frames I1, I2, ..., In
+      Camera intrinsic matrix K
+  
+  Output:
+      Camera poses
+      Sparse 3D point cloud
+  
+  Initialize:
+      camera_poses = []
+      point_cloud = []
+  
+  Set initial camera pose:
+      R0 = Identity matrix
+      t0 = Zero vector
+  
+  Store initial pose:
+      camera_poses.append((R0, t0))
+  
+  For each consecutive image pair (Ii, Ii+1):
+  
+      Detect ORB features:
+          keypoints1, descriptors1 = ORB(Ii)
+          keypoints2, descriptors2 = ORB(Ii+1)
+  
+      Match descriptors using Hamming distance:
+          matches = BFMatcher(descriptors1, descriptors2)
+  
+      Remove incorrect matches using RANSAC
+  
+      If number of valid matches is too small:
+          continue
+  
+      Extract matched feature coordinates:
+          pts1, pts2
+  
+      Estimate Essential Matrix:
+          E = findEssentialMat(pts1, pts2, K)
+  
+      Recover relative camera pose:
+          (R, t) = recoverPose(E, pts1, pts2)
+  
+      Compute global camera pose:
+          Ri+1 = R * Ri
+          ti+1 = R * ti + t
+  
+      Store camera pose:
+          camera_poses.append((Ri+1, ti+1))
+  
+      Construct projection matrices:
+          P1 = K [Ri | ti]
+          P2 = K [Ri+1 | ti+1]
+  
+      Triangulate matched feature points:
+          X = triangulatePoints(P1, P2, pts1, pts2)
+  
+      Add triangulated points to sparse point cloud:
+          point_cloud.append(X)
+  
+  Perform Bundle Adjustment:
+      Optimize:
+          camera intrinsics
+          camera extrinsics
+          3D point locations
+  
+      Minimize reprojection error across all observations
+  
+  Return:
+      optimized camera poses
+      optimized sparse 3D point cloud
 
 ### 2. NeRF Training Algorithm
-Input:
-    Training images
-    Camera poses
-    Camera intrinsics
-
-Output:
-    Trained NeRF model
-
-Initialize NeRF network Fθ with random weights
-
-For epoch = 1 to E:
-
-    Randomly sample training image Ii
-    Retrieve corresponding camera pose Ti
-
-    For each sampled pixel (u, v):
-
-        Generate camera ray:
-            ray origin o
-            ray direction d
-
-        Sample N points along the ray:
-            x1, x2, ..., xN
-
-        For each sampled point xi:
-
-            Apply positional encoding:
-                γ(xi)
-
-            Query NeRF network:
-                (color ci, density σi) = Fθ(γ(xi))
-
-        Perform volume rendering:
-
-            Compute opacity values:
-                αi = 1 - exp(-σi Δi)
-
-            Compute transmittance:
-                Ti = Πj<i (1 - αj)
-
-            Compute rendering weights:
-                wi = Ti * αi
-
-            Render pixel color:
-                Ĉ = Σi wi ci
-
-        Compare rendered color with ground truth:
-            Loss = ||Ĉ - C||²
-
-    Backpropagate loss
-
-    Update network parameters using gradient descent
-
-Return trained NeRF model
+  Input:
+      Training images
+      Camera poses
+      Camera intrinsics
+  
+  Output:
+      Trained NeRF model
+  
+  Initialize NeRF network Fθ with random weights
+  
+  For epoch = 1 to E:
+  
+      Randomly sample training image Ii
+      Retrieve corresponding camera pose Ti
+  
+      For each sampled pixel (u, v):
+  
+          Generate camera ray:
+              ray origin o
+              ray direction d
+  
+          Sample N points along the ray:
+              x1, x2, ..., xN
+  
+          For each sampled point xi:
+  
+              Apply positional encoding:
+                  γ(xi)
+  
+              Query NeRF network:
+                  (color ci, density σi) = Fθ(γ(xi))
+  
+          Perform volume rendering:
+  
+              Compute opacity values:
+                  αi = 1 - exp(-σi Δi)
+  
+              Compute transmittance:
+                  Ti = Πj<i (1 - αj)
+  
+              Compute rendering weights:
+                  wi = Ti * αi
+  
+              Render pixel color:
+                  Ĉ = Σi wi ci
+  
+          Compare rendered color with ground truth:
+              Loss = ||Ĉ - C||²
+  
+      Backpropagate loss
+  
+      Update network parameters using gradient descent
+  
+  Return trained NeRF model
 
 ### 3. Density-Based Geometry Extraction
 After NeRF training, the system samples the learned density field across 3D space to identify where physical surfaces likely exist. High-density regions corresponding to walls and occupied geometry are isolated and converted into a point cloud. Plane detection is then used to identify the two perpendicular wall surfaces that form the corner structure.
